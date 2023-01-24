@@ -1,6 +1,8 @@
 # grpc-test
 Trying out a GRPC full duplex solution with a net core host and a wpf client. May add more later.
 
+To run: `dotnet run` in the /Host/ directory.
+
 # structure
 The /proto/ directory is where services and messages are defined.
 
