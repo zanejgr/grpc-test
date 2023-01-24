@@ -1,7 +1,10 @@
-using Grpc.Core;
-using Host;
-using GrpcTest;
 using Google.Protobuf.WellKnownTypes;
+
+using Grpc.Core;
+
+using GrpcTest;
+
+using Host;
 
 namespace Host.Services;
 

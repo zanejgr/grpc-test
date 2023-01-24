@@ -3,6 +3,7 @@
 .vscode
 *.bak
 *.new
+tmp
 
 ## vim gitignore from github.com/github/gitignore
 # Swap

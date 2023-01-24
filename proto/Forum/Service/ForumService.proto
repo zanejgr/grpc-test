@@ -1,0 +1,105 @@
+syntax="proto3";
+
+import "message.proto";
+import "user.proto";
+import "event.proto";
+import "google/protobuf/empty.proto";
+
+package grpc_test.forum.service;
+
+service QueryService
+{
+    rpc ListInbox (ListInboxRequest) returns (DirectMessageList);
+    rpc ListForumChildren (ForumChildRequest) returns (ForumPostList);
+    rpc OpenStream (OpenStreamRequest) returns (stream Event);
+}
+
+service CommandService{
+    rpc Login (LoginRequest) returns (LoginResponse);
+    rpc Logout (LogoutRequest) returns (LogoutResponse);
+    rpc SendDm (SendDmRequest) returns (SendDmRequestResponse);
+    rpc MakeForumPost (MakeForumPostRequest) returns (MakeForumPostResponse);
+}
+
+message MakeForumPostRequest{
+    oneof parent {
+        bytes id = 1;
+        grpc_test.forum.messages.Message message = 2;
+    }
+    string text = 3;
+}
+
+message MakeForumPostResponse {
+    oneof data {
+        grpc_test.forum.messages.BoardPost message = 1;
+        grpc_test.common.Error error = 2;
+    }
+}
+
+message SendDmRequestResponse{
+    oneof data{
+        grpc_test.forum.messages.DirectMessage message = 1;
+        grpc_test.common.Error error = 2;
+    }
+}
+
+message SendDmRequest {
+    UserRequest recipient = 1;
+    string text = 2;
+}
+
+message LoginResponse {
+    oneof data{
+        grpc_test.forum.messages.User user = 1;
+        grpc_test.common.Error error = 2;
+    }
+}
+message LoginRequest {
+    UserRequest user_request = 1;
+}
+
+message ListInboxRequest {}
+
+message LogoutRequest {}
+
+message LogoutResponse {
+    oneof data{
+        google.protobuf.Empty empty = 1;
+        grpc_test.common.Error error = 2;
+    }
+}
+
+message ForumPostList {
+    repeated grpc_test.forum.messages.BoardPost posts = 1;
+}
+
+message DirectMessageList {
+    repeated grpc_test.forum.messages.DirectMessage messages = 1;
+}
+
+message OpenStreamRequest {
+    repeated UserRequest users = 1;
+    repeated ForumChildRequest forums = 2;
+}
+
+message ForumChildRequest {
+    int32 depth = 1;
+    bytes id = 2;
+}
+
+message UserRequest {
+    oneof key{
+        string username = 1;
+        bytes id = 2;
+    }
+}
+
+message Event{
+    oneof data{
+        grpc_test.forum.messages.User user = 1;
+        grpc_test.forum.messages.DirectMessage direct_message = 2;
+        grpc_test.forum.messages.BoardPost post = 3;
+    }
+
+    grpc_test.common.Action action = 4;
+}

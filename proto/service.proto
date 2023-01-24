@@ -24,4 +24,3 @@ message Unsubscription
 {
   string id = 1;
 }
-

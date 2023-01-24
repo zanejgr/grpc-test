@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+import "user.proto";
+
+package grpc_test.forum.messages;
+
+message Message
+{
+    User author = 1;
+    string text = 2;
+
+}
+
+message DirectMessage
+{
+    Message message = 1;
+    User recipient = 2;
+}
+
+message BoardPost
+{
+    Message parent = 1;
+    Message message = 2;
+}
