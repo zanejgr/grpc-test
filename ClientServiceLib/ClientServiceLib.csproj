@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Google.Protobuf" Version="3.21.12" />
+    <PackageReference Include="Grpc.Net.Client" Version="2.51.0" />
+    <PackageReference Include="grpc.tools" Version="2.51.0">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Protobuf Include="F:\grpc-test\proto\Common\event.proto" AdditionalImportDirs="..\proto\Forum\Messages;..\proto\Forum\Service" Link="Protos\event.proto" />
+    <Protobuf Include="F:\grpc-test\proto\Forum\Messages\message.proto" AdditionalImportDirs="..\proto\Common;..\proto\Forum\Service" Link="Protos\message.proto" />
+    <Protobuf Include="F:\grpc-test\proto\Forum\Messages\user.proto" AdditionalImportDirs="..\proto\Common;..\proto\Forum\Service" Link="Protos\user.proto" />
+    <Protobuf Include="F:\grpc-test\proto\Forum\Service\ForumService.proto" AdditionalImportDirs="..\proto\Common;..\proto\Forum\Messages" Link="Protos\ForumService.proto" />
+  </ItemGroup>
+</Project>

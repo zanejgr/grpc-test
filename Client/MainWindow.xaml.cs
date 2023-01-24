@@ -13,6 +13,10 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
+using Grpc.Net.Client;
+
+using GrpcTest.Forum.Service;
+
 namespace Client
 {
     /// <summary>
@@ -23,6 +27,7 @@ namespace Client
         public MainWindow()
         {
             InitializeComponent();
+            var qsc = new QueryService.QueryServiceClient(GrpcChannel.ForAddress("http://localhost:5207"));
         }
     }
 }
