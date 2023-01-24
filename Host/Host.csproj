@@ -5,10 +5,12 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
   <ItemGroup>
-    <Protobuf Include="..\proto\service.proto" Link="Protos\service.proto" />
-    <Protobuf Include="Protos\greet.proto" GrpcServices="Server" />
+    <PackageReference Include="Grpc.AspNetCore" Version="2.49.0" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Grpc.AspNetCore" Version="2.49.0" />
+    <Protobuf Include="F:\grpc-test\proto\Common\event.proto" AdditionalImportDirs="..\proto\Forum\Messages;..\proto\Forum\Service" Link="Protos\event.proto" />
+    <Protobuf Include="F:\grpc-test\proto\Forum\Messages\message.proto" AdditionalImportDirs="..\proto\Common;..\proto\Forum\Service" Link="Protos\message.proto" />
+    <Protobuf Include="F:\grpc-test\proto\Forum\Messages\user.proto" AdditionalImportDirs="..\proto\Common;..\proto\Forum\Service" Link="Protos\user.proto" />
+    <Protobuf Include="F:\grpc-test\proto\Forum\Service\ForumService.proto" AdditionalImportDirs="..\proto\Common;..\proto\Forum\Messages" Link="Protos\ForumService.proto" />
   </ItemGroup>
 </Project>
