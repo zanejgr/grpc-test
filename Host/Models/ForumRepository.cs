@@ -15,6 +15,17 @@ public class ForumRepository
         var admin = new User("admin");
         _users.Add(admin);
     }
+    public User? GetLogin(string key)
+    {
+        if (_logins.ContainsKey(key))
+        {
+            return _logins[key];
+        }
+        else
+        {
+            return null;
+        }
+    }
     public User Login(string key, string username)
     {
         var u = GetUser(username);
@@ -76,6 +87,19 @@ public class ForumRepository
         else
         {
             _users.Remove(u);
+        }
+    }
+
+    public void CreateDirectMessage(
+        User sender, User recipient, string content)
+    {
+        if (_users.Any(u => u == sender) && _users.Any(u => u == recipient))
+        {
+            _messages.Add(new DirectMessage(sender.Id, recipient.Id, content));
+        }
+        else
+        {
+            throw new ArgumentException("User does not exist");
         }
     }
 }

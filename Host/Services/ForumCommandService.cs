@@ -19,7 +19,8 @@ public class ForumCommandService : CommandService.CommandServiceBase
         _forumRepository = forumRepository;
     }
 
-    public override Task<LoginResponse> Login(LoginRequest request, ServerCallContext context)
+    public override Task<LoginResponse> Login(
+        LoginRequest request, ServerCallContext context)
     {
         try
         {
@@ -81,7 +82,8 @@ public class ForumCommandService : CommandService.CommandServiceBase
             });
         }
     }
-    public override Task<LogoutResponse> Logout(LogoutRequest request, ServerCallContext context)
+    public override Task<LogoutResponse> Logout(
+        LogoutRequest request, ServerCallContext context)
     {
         try
         {
@@ -104,12 +106,82 @@ public class ForumCommandService : CommandService.CommandServiceBase
         }
 
     }
-    public override Task<MakeForumPostResponse> MakeForumPost(MakeForumPostRequest request, ServerCallContext context)
+    public override Task<MakeForumPostResponse> MakeForumPost(
+        MakeForumPostRequest request, ServerCallContext context)
     {
         return base.MakeForumPost(request, context);
     }
-    public override Task<SendDmRequestResponse> SendDm(SendDmRequest request, ServerCallContext context)
+    public override Task<SendDmRequestResponse> SendDm(
+        SendDmRequest request, ServerCallContext context) => Task.Run(() =>
     {
-        return base.SendDm(request, context);
-    }
+        var u = _forumRepository.GetLogin(context.Peer);
+        if (u == null)
+        {
+            return new SendDmRequestResponse
+            {
+                Error = new GrpcTest.Common.Error
+                {
+                    Code = GrpcTest.Common.ErrorCode.NotAuthorized,
+                    Message = "you must be logged in to do that"
+                }
+            };
+        }
+        var rec = (request.Recipient.KeyCase switch
+        {
+            UserRequest.KeyOneofCase.Id =>
+                _forumRepository.GetUser(
+                    new Guid(request.Recipient.Id.ToArray())),
+            UserRequest.KeyOneofCase.Username => _forumRepository.GetUser(
+                request.Recipient.Username),
+            _ => null
+        });
+        if (rec == null)
+        {
+            return new SendDmRequestResponse
+            {
+                Error = new GrpcTest.Common.Error
+                {
+                    Code = GrpcTest.Common.ErrorCode.NotFound,
+                    Message = "the recipient was not found",
+                    Data = Any.Pack(request.Recipient)
+                }
+            };
+        }
+        try
+        {
+            _forumRepository.CreateDirectMessage(u, rec, request.Text);
+            return new SendDmRequestResponse
+            {
+                Message = new GrpcTest.Forum.Messages.DirectMessage
+                {
+                    Message = new GrpcTest.Forum.Messages.Message
+                    {
+                        Author = new GrpcTest.Forum.Messages.User
+                        {
+                            Id = ByteString.CopyFrom(u.Id.ToByteArray()),
+                            Username = u.username
+                        },
+                        Text = request.Text
+                    },
+                    Recipient = new GrpcTest.Forum.Messages.User
+                    {
+                        Id = ByteString.CopyFrom(u.Id.ToByteArray()),
+                        Username = u.username
+                    }
+                }
+            };
+        }
+        catch (ArgumentException e)
+        {
+            return new SendDmRequestResponse
+            {
+                Error = new GrpcTest.Common.Error
+                {
+                    Code = GrpcTest.Common.ErrorCode.NotFound,
+                    Message = e.Message,
+                    Data = Any.Pack(request)
+                }
+            };
+        }
+    });
 }
