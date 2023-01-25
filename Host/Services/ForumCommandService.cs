@@ -1,3 +1,5 @@
+using Google.Protobuf;
+
 using Grpc.Core;
 
 using GrpcTest.Forum.Service;
@@ -18,7 +20,15 @@ public class ForumCommandService : CommandService.CommandServiceBase
 
     public override Task<LoginResponse> Login(LoginRequest request, ServerCallContext context)
     {
-        return base.Login(request, context);
+        var u = _forumRepository.GetUser("admin");
+        return Task.Run(() => new LoginResponse()
+        {
+            User = new GrpcTest.Forum.Messages.User
+            {
+                Username = u.username,
+                Id = ByteString.CopyFrom(u.Id.ToByteArray())
+            }
+        });
     }
     public override Task<LogoutResponse> Logout(LogoutRequest request, ServerCallContext context)
     {
