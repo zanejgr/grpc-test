@@ -13,6 +13,8 @@ The /Host/ directory has an asp.net core 6 server.
 
 The /Client/ directory has a WPF client, which will consume the API.
 
+The /ConsoleClient/ directory has a console app for testing purposes.
+
 The /ClientServiceLib/ directory is an empty classlib with necessary references
 to generate C# classes from the protobufs, because WPF projects cannot include
 this.
