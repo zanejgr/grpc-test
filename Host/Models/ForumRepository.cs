@@ -4,14 +4,36 @@ public class ForumRepository
     private readonly List<User> _users;
     private readonly List<DirectMessage> _messages;
     private readonly List<BoardPost> _boardPosts;
+    private readonly Dictionary<string, User> _logins;
 
     public ForumRepository()
     {
+        _logins = new();
         _users = new();
         _messages = new();
         _boardPosts = new();
         var admin = new User("admin");
         _users.Add(admin);
+    }
+    public User Login(string key, string username)
+    {
+        var u = GetUser(username);
+        if (u == null)
+        {
+            throw new ArgumentException("User does not exist");
+        }
+        _logins[key] = u;
+        return u;
+    }
+    public User Logout(string key)
+    {
+        if (_logins.ContainsKey(key))
+        {
+            var user = _logins[key];
+            _logins.Remove(key);
+            return user;
+        }
+        throw new ArgumentException("Session does not exist");
     }
     public User? GetUser(string username)
     {
