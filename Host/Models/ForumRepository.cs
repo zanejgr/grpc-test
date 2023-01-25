@@ -4,6 +4,7 @@ public class ForumRepository
     private readonly List<User> _users;
     private readonly List<DirectMessage> _messages;
     private readonly List<BoardPost> _boardPosts;
+
     public ForumRepository()
     {
         _users = new();
