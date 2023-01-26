@@ -107,10 +107,85 @@ public class ForumCommandService : CommandService.CommandServiceBase
 
     }
     public override Task<MakeForumPostResponse> MakeForumPost(
-        MakeForumPostRequest request, ServerCallContext context)
+        MakeForumPostRequest request,
+        ServerCallContext context) => Task.Run(() =>
     {
-        return base.MakeForumPost(request, context);
-    }
+        var u = _forumRepository.GetLogin(context.Peer);
+        if (u == null)
+        {
+            return new MakeForumPostResponse
+            {
+                Error = new GrpcTest.Common.Error
+                {
+                    Code = GrpcTest.Common.ErrorCode.NotAuthorized,
+                    Message = "you must be logged in to do that"
+                }
+            };
+        }
+        BoardPost res;
+        try
+        {
+            switch (request.ParentCase)
+            {
+                case MakeForumPostRequest.ParentOneofCase.Id:
+                    {
+                        var p = _forumRepository.GetBoardPost(new Guid(
+                            request.Id.ToByteArray()));
+                        if (p == null)
+                        {
+                            throw new ArgumentException("Board post was not found");
+                        }
+                        res = _forumRepository.CreateBoardPost(u, request.Text, p);
+                    }
+                    break;
+                case MakeForumPostRequest.ParentOneofCase.Message:
+                    {
+                        // doesn't work. Always "Board Post Not Found" 
+                        var p = _forumRepository.GetBoardPost(new Guid(
+                            request.Message.Id.ToByteArray()));
+                        if (p == null)
+                        {
+                            throw new ArgumentException("Board post was not found");
+                        }
+                        res = _forumRepository.CreateBoardPost(
+                            u, request.Text, p);
+                    }
+                    break;
+                default:
+                    res = _forumRepository.CreateBoardPost(
+                        u, request.Text);
+                    break;
+            }
+        }
+        catch (ArgumentException e)
+        {
+            return new MakeForumPostResponse
+            {
+                Error = new GrpcTest.Common.Error
+                {
+                    Code = GrpcTest.Common.ErrorCode.BadRequest,
+                    Message = e.Message,
+                    Data = Any.Pack(request)
+                }
+            };
+        }
+        return new MakeForumPostResponse
+        {
+            Message = new GrpcTest.Forum.Messages.BoardPost
+            {
+                Message = new GrpcTest.Forum.Messages.Message
+                {
+                    Author = new GrpcTest.Forum.Messages.User
+                    {
+                        Id = ByteString.CopyFrom(u.Id.ToByteArray()),
+                        Username = u.username
+                    },
+                    Text = res.Text
+                },
+                Id = ByteString.CopyFrom(res.Id.ToByteArray())
+            }
+        };
+    });
     public override Task<SendDmRequestResponse> SendDm(
         SendDmRequest request, ServerCallContext context) => Task.Run(() =>
     {

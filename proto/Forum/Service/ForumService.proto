@@ -24,7 +24,7 @@ service CommandService{
 message MakeForumPostRequest{
     oneof parent {
         bytes id = 1;
-        grpc_test.forum.messages.Message message = 2;
+        grpc_test.forum.messages.BoardPost message = 2;
     }
     string text = 3;
 }

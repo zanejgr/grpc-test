@@ -19,6 +19,7 @@ message DirectMessage
 
 message BoardPost
 {
-    Message parent = 1;
+    BoardPost parent = 1;
     Message message = 2;
+    bytes id = 3;
 }

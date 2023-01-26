@@ -14,6 +14,10 @@ public class ForumRepository
         _boardPosts = new();
         var admin = new User("admin");
         _users.Add(admin);
+        _boardPosts.Add(new BoardPost(admin.Id, null, "Master Post")
+        {
+            Id = Guid.Parse("67c3f052-3f02-4e23-ae97-bcc02e658b55")
+        });
     }
     public User? GetLogin(string key)
     {
@@ -88,6 +92,33 @@ public class ForumRepository
         {
             _users.Remove(u);
         }
+    }
+
+    public BoardPost? GetBoardPost(Guid id)
+    {
+        return _boardPosts.SingleOrDefault(p => p.Id == id);
+    }
+    public BoardPost CreateBoardPost(
+        User sender, string content, BoardPost? parent = null)
+    {
+        if (!_users.Any(u => u == sender))
+        {
+            throw new ArgumentException("User not found");
+        }
+        if (parent == null)
+        {
+            var a = new BoardPost(sender.Id, null, content);
+            _boardPosts.Add(a);
+            return a;
+        }
+        if (!_boardPosts.Any(p => p == parent))
+        {
+            throw new ArgumentException("Board post not found");
+        }
+        var res = new BoardPost(sender.Id, parent.Id, content);
+        _boardPosts.Add(res);
+        return res;
+
     }
 
     public void CreateDirectMessage(
