@@ -120,6 +120,19 @@ public class ForumRepository
         return res;
 
     }
+    public DirectMessage[] ListDirectMessages(Guid? author, Guid? recipient)
+    {
+        IEnumerable<DirectMessage> res = _messages;
+        if (author != null)
+        {
+            res = res.Where(m => m.Sender == author);
+        }
+        if (recipient != null)
+        {
+            res = res.Where(m => m.Recipient == recipient);
+        }
+        return res.ToArray();
+    }
 
     public void CreateDirectMessage(
         User sender, User recipient, string content)

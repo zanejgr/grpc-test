@@ -133,9 +133,11 @@ public class ForumCommandService : CommandService.CommandServiceBase
                             request.Id.ToByteArray()));
                         if (p == null)
                         {
-                            throw new ArgumentException("Board post was not found");
+                            throw new ArgumentException(
+                                "Board post was not found");
                         }
-                        res = _forumRepository.CreateBoardPost(u, request.Text, p);
+                        res = _forumRepository.CreateBoardPost(
+                            u, request.Text, p);
                     }
                     break;
                 case MakeForumPostRequest.ParentOneofCase.Message:
@@ -145,7 +147,8 @@ public class ForumCommandService : CommandService.CommandServiceBase
                             request.Message.Id.ToByteArray()));
                         if (p == null)
                         {
-                            throw new ArgumentException("Board post was not found");
+                            throw new ArgumentException(
+                                "Board post was not found");
                         }
                         res = _forumRepository.CreateBoardPost(
                             u, request.Text, p);
