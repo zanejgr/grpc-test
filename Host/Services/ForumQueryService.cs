@@ -127,30 +127,49 @@ public class ForumQueryService : QueryService.QueryServiceBase
             _ => Guid.Empty
         });
         var forums = request.Forums;
-        List<Action<object?, DirectMessage>> events = new();
+        List<Action<object?, DirectMessage>> msgEvents = new();
+        List<Action<object?, BoardPost>> postEvents = new();
         if (userIds.Count() == 0)
         {
             var dlg = handle_DirectMessage_delegate(
                 currentUser.Id, null, responseStream);
-            events.Add(dlg);
+            msgEvents.Add(dlg);
         }
         foreach (var u in userIds)
         {
             var dlg = handle_DirectMessage_delegate(
                 currentUser.Id, u, responseStream);
-            events.Add(dlg);
+            msgEvents.Add(dlg);
         }
-        foreach (var dlg in events)
+        if (forums.Count == 0)
+        {
+            var dlg = handle_ForumPost_delegate(null, responseStream);
+            postEvents.Add(dlg);
+        }
+        foreach (var f in request.Forums)
+        {
+            var dlg = handle_ForumPost_delegate(null, responseStream);
+            postEvents.Add(dlg);
+        }
+        foreach (var dlg in msgEvents)
         {
             _forumRepository.DirectMessageHandler += dlg.Invoke;
+        }
+        foreach (var dlg in postEvents)
+        {
+            _forumRepository.BoardPostHandler += dlg.Invoke;
         }
         while (!context.CancellationToken.IsCancellationRequested)
         {
             await Task.Delay(100);
         }
-        foreach (var dlg in events)
+        foreach (var dlg in msgEvents)
         {
             _forumRepository.DirectMessageHandler -= dlg.Invoke;
+        }
+        foreach (var dlg in postEvents)
+        {
+            _forumRepository.BoardPostHandler -= dlg.Invoke;
         }
 
     }
@@ -187,6 +206,54 @@ public class ForumQueryService : QueryService.QueryServiceBase
                         },
                         Recipient = recipient
                     }
+                });
+            }
+        };
+    }
+    private Action<object?, BoardPost> handle_ForumPost_delegate(
+        Guid? parent,
+        IServerStreamWriter<GrpcTest.Forum.Service.Event> stream
+    )
+    {
+        GrpcTest.Forum.Messages.BoardPost parentPost = new();
+        if (parent is not null)
+        {
+            var repoPost = _forumRepository.GetBoardPost(
+                parent.Value) ?? new(default, default, "");
+            parentPost.Id = ByteString.CopyFrom(parent.Value.ToByteArray());
+            parentPost.Message = new GrpcTest.Forum.Messages.Message
+            {
+                Author = new GrpcTest.Forum.Messages.User
+                {
+                    Id = ByteString.CopyFrom(repoPost.Author.ToByteArray()),
+                    Username = _forumRepository.GetUser(
+                            repoPost.Author)?.username ?? ""
+                },
+                Text = repoPost.Text
+            };
+        };
+
+        return async (object? sender, BoardPost post) =>
+        {
+            if (parent == null || post.ParentId == parent)
+            {
+                await stream.WriteAsync(new GrpcTest.Forum.Service.Event
+                {
+                    Post = new GrpcTest.Forum.Messages.BoardPost
+                    {
+                        Parent = parentPost,
+                        Id = ByteString.CopyFrom(post.Id.ToByteArray()),
+                        Message = new GrpcTest.Forum.Messages.Message
+                        {
+                            Author = new GrpcTest.Forum.Messages.User
+                            {
+                                Id = ByteString.CopyFrom(post.Author.ToByteArray()),
+                                Username = _forumRepository.GetUser(
+                                post.Author)!.username
+                            }
+                        }
+                    },
+                    Action = GrpcTest.Common.Action.Created
                 });
             }
         };
