@@ -120,6 +120,22 @@ public class ForumRepository
         return res;
 
     }
+    public BoardPost[] ListBoardPosts(Guid? root, int depth = int.MaxValue)
+    {
+        List<BoardPost> posts = new();
+        if (depth < 1)
+        {
+            return posts.ToArray();
+        }
+        posts.AddRange(_boardPosts.Where(p => p.ParentId == root));
+        List<BoardPost> next = new();
+        foreach (var p in posts)
+        {
+            next.AddRange(ListBoardPosts(p.Id, depth - 1));
+        }
+        posts.AddRange(next);
+        return posts.ToArray();
+    }
     public DirectMessage[] ListDirectMessages(Guid? author, Guid? recipient)
     {
         IEnumerable<DirectMessage> res = _messages;
