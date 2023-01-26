@@ -5,6 +5,8 @@ public class ForumRepository
     private readonly List<DirectMessage> _messages;
     private readonly List<BoardPost> _boardPosts;
     private readonly Dictionary<string, User> _logins;
+    public event EventHandler<DirectMessage>? DirectMessageHandler;
+    public event EventHandler<BoardPost>? BoardPostHandler;
 
     public ForumRepository()
     {
@@ -13,7 +15,9 @@ public class ForumRepository
         _messages = new();
         _boardPosts = new();
         var admin = new User("admin");
+        var streamer = new User("streamer");
         _users.Add(admin);
+        _users.Add(streamer);
         _boardPosts.Add(new BoardPost(admin.Id, null, "Master Post")
         {
             Id = Guid.Parse("67c3f052-3f02-4e23-ae97-bcc02e658b55")
@@ -109,6 +113,10 @@ public class ForumRepository
         {
             var a = new BoardPost(sender.Id, null, content);
             _boardPosts.Add(a);
+            if (BoardPostHandler != null)
+            {
+                BoardPostHandler(this, a);
+            }
             return a;
         }
         if (!_boardPosts.Any(p => p == parent))
@@ -117,6 +125,10 @@ public class ForumRepository
         }
         var res = new BoardPost(sender.Id, parent.Id, content);
         _boardPosts.Add(res);
+        if (BoardPostHandler != null)
+        {
+            BoardPostHandler(this, res);
+        }
         return res;
 
     }
@@ -155,7 +167,12 @@ public class ForumRepository
     {
         if (_users.Any(u => u == sender) && _users.Any(u => u == recipient))
         {
-            _messages.Add(new DirectMessage(sender.Id, recipient.Id, content));
+            var m = new DirectMessage(sender.Id, recipient.Id, content);
+            _messages.Add(m);
+            if (DirectMessageHandler != null)
+            {
+                DirectMessageHandler(this, m);
+            }
         }
         else
         {

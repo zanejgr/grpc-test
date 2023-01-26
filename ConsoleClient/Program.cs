@@ -31,7 +31,7 @@ var dm = commandClient.SendDm(new SendDmRequest
 {
     Recipient = new UserRequest
     {
-        Username = "admin"
+        Username = "streamer"
     },
     Text = "hi hello howdy"
 });
