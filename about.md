@@ -9,7 +9,7 @@ It does not support message queuing directly, as WCF does.
 The main way to write a gRPC interface is via the Protobuf language.
 This was created to fill the same functionality as XML, with less verbosity and
 faster serialization. From the `.proto` file, fully-functional clients are
-generated. Don't look at the DTO code
+generated. (Don't look at the DTO code.)
 Officially supported languages are 
 * C# 
 * Javascript
