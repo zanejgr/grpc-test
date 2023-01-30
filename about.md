@@ -119,13 +119,13 @@ message Content{
         Pizza pizza = 2;
     }
 }
-    enum Topping {
-        CHEESE=1;
-        PICKLE=2;
-        LETTUCE=3;
-        ONION=4;
-        TOMATO=5;
-    }
+enum Topping {
+    CHEESE=1;
+    PICKLE=2;
+    LETTUCE=3;
+    ONION=4;
+    TOMATO=5;
+}
 message Burger{
     i32 patties = 1;
     repeated Topping topping = 2;
